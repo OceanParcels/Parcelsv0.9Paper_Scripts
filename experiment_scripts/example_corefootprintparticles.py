@@ -1,4 +1,5 @@
 from parcels import FieldSet, ParticleSet, JITParticle, AdvectionRK4, ErrorCode, ParticleFile, Variable
+from scripts import convert_IndexedOutputToArray
 from datetime import timedelta as delta
 from glob import glob
 import numpy as np
@@ -78,5 +79,45 @@ def run_corefootprintparticles(outfile):
         fieldset.advancetime(set_ofes_fieldset([files[i]]))
 
 
+def make_plot(trajfile):
+    from netCDF4 import Dataset
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.basemap import Basemap
+
+    class ParticleData(object):
+        def __init__(self):
+            self.id = []
+
+    def load_particles_file(fname, varnames):
+        T = ParticleData()
+        pfile = Dataset(fname, 'r')
+        T.id = pfile.variables['trajectory'][:]
+        for v in varnames:
+            setattr(T, v, pfile.variables[v][:])
+        return T
+
+    T = load_particles_file(trajfile, ['lon', 'lat', 'temp', 'z'])
+    m = Basemap(projection='merc', llcrnrlat=-45, urcrnrlat=-25, llcrnrlon=5, urcrnrlon=35, resolution='h')
+    m.drawcoastlines()
+    m.drawparallels(np.arange(-50, -20, 10), labels=[True, False, False, False])
+    m.drawmeridians(np.arange(0, 40, 10), labels=[False, False, False, True])
+
+    sinks = np.where(T.z > 50.)
+    dwell = np.where(T.z == 50.)
+    xs, ys = m(T.lon[dwell], T.lat[dwell])
+    m.scatter(xs, ys, c=T.temp[dwell], s=5)
+    cbar = plt.colorbar()
+    cbar.ax.xaxis.set_label_position('top')
+    cbar.ax.set_xlabel('[$^\circ$C]')
+
+    xs, ys = m(T.lon[sinks], T.lat[sinks])
+    m.scatter(xs, ys, c='k', s=5)
+    xs, ys = m(T.lon[0, 0], T.lat[0, 0])
+    m.plot(xs, ys, 'om')
+    plt.show()
+
+
 outfile = "corefootprint_particles"
 run_corefootprintparticles(outfile)
+convert_IndexedOutputToArray(file_in=outfile+".nc", file_out=outfile+"_array.nc")
+make_plot(outfile+"_array.nc")
