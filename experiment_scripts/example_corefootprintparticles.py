@@ -1,4 +1,4 @@
-from parcels import FieldSet, ParticleSet, JITParticle, AdvectionRK4, ErrorCode, ParticleFile, Variable
+from parcels import FieldSet, ParticleSet, JITParticle, AdvectionRK4_3D, ErrorCode, ParticleFile, Variable
 from scripts import convert_IndexedOutputToArray
 from datetime import timedelta as delta
 from progressbar import ProgressBar
@@ -10,14 +10,16 @@ import math
 def set_ofes_fieldset(snapshots):
     ufiles = [path.join(path.dirname(__file__), "ofesdata", "uvel{:05d}.nc".format(s)) for s in snapshots]
     vfiles = [path.join(path.dirname(__file__), "ofesdata", "vvel{:05d}.nc".format(s)) for s in snapshots]
+    wfiles = [path.join(path.dirname(__file__), "ofesdata", "wvel{:05d}.nc".format(s)) for s in snapshots]
     tfiles = [path.join(path.dirname(__file__), "ofesdata", "temp{:05d}.nc".format(s)) for s in snapshots]
-    filenames = {'U': ufiles, 'V': vfiles, 'temp': tfiles}
-    variables = {'U': 'uvel', 'V': 'vvel', 'temp': 'temp'}
+    filenames = {'U': ufiles, 'V': vfiles, 'W': wfiles, 'temp': tfiles}
+    variables = {'U': 'uvel', 'V': 'vvel', 'W': 'wvel', 'temp': 'temp'}
     dimensions = {'lat': 'lat', 'lon': 'lon', 'time': 'time', 'depth': 'lev'}
 
     fieldset = FieldSet.from_netcdf(filenames, variables, dimensions)
     fieldset.U.data /= 100.  # convert from cm/s to m/s
     fieldset.V.data /= 100.  # convert from cm/s to m/s
+    fieldset.W.data /= 100.  # convert from cm/s to m/s
     return fieldset
 
 
@@ -63,7 +65,7 @@ def run_corefootprintparticles(outfile):
     pfile = ParticleFile(outfile, pset, type="indexed")
     pfile.write(pset, pset[0].time)
 
-    kernels = pset.Kernel(AdvectionRK4) + Sink + SampleTemp + Age
+    kernels = pset.Kernel(AdvectionRK4_3D) + Sink + SampleTemp + Age
 
     pbar = ProgressBar()
     for s in pbar(range(len(snapshots)-5, -1, -1)):
