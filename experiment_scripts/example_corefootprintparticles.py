@@ -1,26 +1,23 @@
 from parcels import FieldSet, ParticleSet, JITParticle, AdvectionRK4, ErrorCode, ParticleFile, Variable
 from scripts import convert_IndexedOutputToArray
 from datetime import timedelta as delta
-from glob import glob
+from progressbar import ProgressBar
 import numpy as np
+from os import path
 import math
 
 
-def set_ofes_fieldset(ufiles):
-    vfiles = [f.replace('u.nc', 'v.nc') for f in ufiles]
-    vfiles = [f.replace('u_vel', 'v_vel') for f in vfiles]
-    tfiles = [f.replace('u.nc', 't.nc') for f in ufiles]
-    tfiles = [f.replace('u_vel', 'temp') for f in tfiles]
+def set_ofes_fieldset(snapshots):
+    ufiles = [path.join(path.dirname(__file__), "ofesdata", "uvel{:05d}.nc".format(s)) for s in snapshots]
+    vfiles = [path.join(path.dirname(__file__), "ofesdata", "vvel{:05d}.nc".format(s)) for s in snapshots]
+    tfiles = [path.join(path.dirname(__file__), "ofesdata", "temp{:05d}.nc".format(s)) for s in snapshots]
     filenames = {'U': ufiles, 'V': vfiles, 'temp': tfiles}
-    variables = {'U': 'zu', 'V': 'zv', 'temp': 'temperature'}
-    dimensions = {'lat': 'Latitude', 'lon': 'Longitude', 'time': 'Time',
-                  'depth': 'Depth'}
-    indices = {'lat': range(200, 500), 'lon': range(0, 500)}
+    variables = {'U': 'uvel', 'V': 'vvel', 'temp': 'temp'}
+    dimensions = {'lat': 'lat', 'lon': 'lon', 'time': 'time', 'depth': 'lev'}
 
-    fieldset = FieldSet.from_netcdf(filenames, variables, dimensions, indices=indices)
-    fieldset.U.data[fieldset.U.data > 1e5] = 0
-    fieldset.V.data[fieldset.V.data > 1e5] = 0
-    fieldset.temp.data[fieldset.temp.data == 0] = np.nan
+    fieldset = FieldSet.from_netcdf(filenames, variables, dimensions)
+    fieldset.U.data /= 100.  # convert from cm/s to m/s
+    fieldset.V.data /= 100.  # convert from cm/s to m/s
     return fieldset
 
 
@@ -47,9 +44,8 @@ def DeleteParticle(particle):
 
 
 def run_corefootprintparticles(outfile):
-    basepath = '/Volumes/data01/OFESdata/OFES_0.1_HIND/allveldata/nest_1_*u.nc'
-    files = list(reversed(glob(str(basepath))))  # Reverse the file list
-    fieldset = set_ofes_fieldset(files[3:0:-1])
+    snapshots = range(3165, 3289)
+    fieldset = set_ofes_fieldset(snapshots[-4:-1])
     fieldset.add_constant('dwellingdepth', 50.)
     fieldset.add_constant('sinkspeed', 200./86400)
     fieldset.add_constant('maxage', 30.*86400)
@@ -69,14 +65,15 @@ def run_corefootprintparticles(outfile):
 
     kernels = pset.Kernel(AdvectionRK4) + Sink + SampleTemp + Age
 
-    for i in range(4, len(files), 1):
+    pbar = ProgressBar()
+    for s in pbar(range(len(snapshots)-5, -1, -1)):
         pset.execute(kernels, starttime=pset[0].time, runtime=delta(days=3),
                      dt=delta(minutes=-5), interval=delta(days=-1),
                      recovery={ErrorCode.ErrorOutOfBounds: DeleteParticle})
 
         pset.add(ForamParticle(lon=corelon, lat=corelat, depth=coredepth, fieldset=fieldset))
         pfile.write(pset, pset[0].time)
-        fieldset.advancetime(set_ofes_fieldset([files[i]]))
+        fieldset.advancetime(set_ofes_fieldset([snapshots[s]]))
 
 
 def make_plot(trajfile):
@@ -97,8 +94,9 @@ def make_plot(trajfile):
         return T
 
     T = load_particles_file(trajfile, ['lon', 'lat', 'temp', 'z'])
-    m = Basemap(projection='merc', llcrnrlat=-45, urcrnrlat=-25, llcrnrlon=5, urcrnrlon=35, resolution='h')
+    m = Basemap(projection='merc', llcrnrlat=-40, urcrnrlat=-27.5, llcrnrlon=10, urcrnrlon=32.5, resolution='h')
     m.drawcoastlines()
+    m.fillcontinents(color='burlywood')
     m.drawparallels(np.arange(-50, -20, 10), labels=[True, False, False, False])
     m.drawmeridians(np.arange(0, 40, 10), labels=[False, False, False, True])
 
