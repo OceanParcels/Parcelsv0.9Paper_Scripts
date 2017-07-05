@@ -31,19 +31,21 @@ def make_plot(outfile):
     lon = pfile.variables['lon']
     lat = pfile.variables['lat']
 
-    plt.subplot(1, 2, 1)
-    plt.plot(np.transpose(lon), np.transpose(lat), '.-', linewidth=0.5)
+    fig, ax1 = plt.subplots()
     plt.xlabel('Longitude [degrees]')
     plt.ylabel('Latitude [degrees]')
     plt.title('(b) Longitudinal shear flow')
 
-    plt.subplot(1, 2, 2)
-    m = Basemap(projection='ortho', lat_0=45, lon_0=10, resolution='l')
+    ax2 = fig.add_axes([0.52, 0.15, 0.4, 0.4])
+
+    ax1.plot(np.transpose(lon), np.transpose(lat), '.-', linewidth=0.5)
+
+    m = Basemap(projection='ortho', lat_0=45, lon_0=10, resolution='l', ax=ax2)
     m.drawmeridians(np.arange(0, 360, 45))
     m.drawparallels(np.arange(-90, 90, 30))
-
     xs, ys = m(np.transpose(lon), np.transpose(lat))
     m.plot(xs, ys)
+
     plt.show()
 
 
