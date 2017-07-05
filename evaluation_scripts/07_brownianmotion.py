@@ -55,6 +55,7 @@ def make_plot(outfile):
 
     plt.xlabel('Zonal distance [km]')
     plt.ylabel('Meridional distance [km]')
+    plt.title('(g) Brownian motion with a uniform $K_h$')
     plt.show()
 
 

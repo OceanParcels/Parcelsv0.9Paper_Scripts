@@ -70,6 +70,7 @@ def make_plot(start_lon, start_lat, outfile):
     plt.plot(np.transpose(lon) / 1000, np.transpose(lat) / 1000, '.-', linewidth=0.5)
     plt.xlabel('Zonal distance [km]')
     plt.ylabel('Meridional distance [km]')
+    plt.title('(f) Damped inertial oscillation on a geostrophic flow')
     plt.show()
 
 

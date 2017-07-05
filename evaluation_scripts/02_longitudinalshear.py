@@ -35,6 +35,7 @@ def make_plot(outfile):
     plt.plot(np.transpose(lon), np.transpose(lat), '.-', linewidth=0.5)
     plt.xlabel('Longitude [degrees]')
     plt.ylabel('Latitude [degrees]')
+    plt.title('(b) Longitudinal shear flow')
 
     plt.subplot(1, 2, 2)
     m = Basemap(projection='ortho', lat_0=45, lon_0=10, resolution='l')

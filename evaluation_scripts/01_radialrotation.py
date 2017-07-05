@@ -55,6 +55,7 @@ def make_plot(fieldset, outfile):
     plt.plot(np.transpose(lon)/1000, np.transpose(lat)/1000, '.-', linewidth=0.5)
     plt.xlabel('Zonal distance [km]')
     plt.ylabel('Meridional distance [km]')
+    plt.title('(a) Radial rotation with known period')
     plt.axis((-5, 5, -5, 5))
     plt.show()
 

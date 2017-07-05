@@ -95,6 +95,7 @@ def make_plot(fieldset, outfile):
     plt.plot(np.transpose(lon), np.transpose(lat), '.-', linewidth=0.5)
     plt.xlabel('Longitude [degrees]')
     plt.ylabel('Latitude [degrees]')
+    plt.title('(d) Steady-state flow around a peninsula')
     plt.show()
 
 

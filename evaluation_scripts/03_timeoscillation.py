@@ -56,6 +56,7 @@ def make_plot(outfile):
              linewidth=0.5)
     plt.xlabel('Zonal distance [km]')
     plt.ylabel('Meridional distance [km]')
+    plt.title('(c) Advection due to a time-oscillating zonal flow')
     plt.show()
 
 

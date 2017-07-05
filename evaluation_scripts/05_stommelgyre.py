@@ -80,6 +80,7 @@ def make_plot(fieldset, outfile):
     plt.plot(np.transpose(lon), np.transpose(lat), '.-', linewidth=0.5)
     plt.xlabel('Zonal distance [km]')
     plt.ylabel('Meridional distance [km]')
+    plt.title('(e) Steady-state flow in a Stommel gyre and western boundary current')
     plt.show()
 
 
