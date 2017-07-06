@@ -41,7 +41,7 @@ def Age(particle, fieldset, time, dt):
         particle.delete()
 
 
-def DeleteParticle(particle):
+def DeleteParticle(particle, fieldset, time, dt):
     particle.delete()
 
 
