@@ -86,7 +86,7 @@ def make_plot(fieldset, outfile):
     print np.max([abs(psi[i, :] - psi[i, 0]) for i in range(psi.shape[0])])
 
     levels = np.insert(np.flip(psi[:, 1], 0), 0, [-50])
-    plt.gca().patch.set_color('.25')
+    plt.gca().patch.set_color('#deb887')
     cm = LinearSegmentedColormap.from_list('test', [(1, 1, 1), (1, 1, 1)], N=1)
     plt.contourf(fieldset.Psi.lon, fieldset.Psi.lat, fieldset.Psi.data[0, :, :],
                  levels=[-50, 0], cmap=cm)
