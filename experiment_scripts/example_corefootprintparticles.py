@@ -1,5 +1,5 @@
-from parcels import FieldSet, ParticleSet, JITParticle, AdvectionRK4_3D, ErrorCode, ParticleFile, Variable
-from scripts import convert_IndexedOutputToArray
+from parcels import (FieldSet, ParticleSet, JITParticle, AdvectionRK4_3D,
+                     ErrorCode, ParticleFile, Variable, convert_IndexedOutputToArray)
 from datetime import timedelta as delta
 from progressbar import ProgressBar
 import numpy as np
