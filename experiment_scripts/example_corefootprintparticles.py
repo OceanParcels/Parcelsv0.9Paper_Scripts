@@ -61,7 +61,8 @@ def run_corefootprintparticles(outfile):
         age = Variable('age', dtype=np.float32, initial=0.)
 
     pset = ParticleSet(fieldset=fieldset, pclass=ForamParticle, lon=corelon, lat=corelat,
-                       depth=coredepth, time=fieldset.U.time[-1])
+                       depth=coredepth, time=fieldset.U.time[-1],
+                       repeatdt=delta(days=3))  # the new argument 'repeatdt' means no need to call pset.add() anymore in for-loop
     pfile = ParticleFile(outfile, pset, type="indexed")
     pfile.write(pset, pset[0].time)
 
@@ -69,11 +70,10 @@ def run_corefootprintparticles(outfile):
 
     pbar = ProgressBar()
     for s in pbar(range(len(snapshots)-5, -1, -1)):
-        pset.execute(kernels, starttime=pset[0].time, runtime=delta(days=3),
+        pset.execute(kernels, runtime=delta(days=3),
                      dt=delta(minutes=-5), interval=delta(days=-1),
                      recovery={ErrorCode.ErrorOutOfBounds: DeleteParticle})
 
-        pset.add(ForamParticle(lon=corelon, lat=corelat, depth=coredepth, fieldset=fieldset))
         pfile.write(pset, pset[0].time)
         fieldset.advancetime(set_ofes_fieldset([snapshots[s]]))
 
