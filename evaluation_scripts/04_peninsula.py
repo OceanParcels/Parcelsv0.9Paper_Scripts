@@ -69,7 +69,7 @@ def run_pensinsula(fieldset, npart, outfilename):
     x = 3. * (1. / 1.852 / 60)
     y = (fieldset.U.lat[0] + x, fieldset.U.lat[-1] - x)
     pset = ParticleSet.from_line(fieldset, size=npart, pclass=MyParticle,
-                                 start=(x, y[0]), finish=(x, y[1]))
+                                 start=(x, y[0]), finish=(x, y[1]), time=0.)
 
     # Advect the particles for 24h
     outfile = pset.ParticleFile(name=outfilename)

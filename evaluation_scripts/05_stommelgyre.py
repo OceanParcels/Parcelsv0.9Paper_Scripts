@@ -60,7 +60,7 @@ def run_stommelgyre(fieldset, outfilename):
     class MyParticle(JITParticle):
         psi = Variable('psi', dtype=np.float32, initial=fieldset.Psi)
 
-    pset = ParticleSet.from_line(fieldset, size=4, pclass=MyParticle,
+    pset = ParticleSet.from_line(fieldset, size=4, pclass=MyParticle, time=0.,
                                  start=(100, 5000), finish=(1000, 5000))
 
     outfile = pset.ParticleFile(name=outfilename)
