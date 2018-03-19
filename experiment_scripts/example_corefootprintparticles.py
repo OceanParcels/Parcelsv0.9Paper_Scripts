@@ -1,5 +1,5 @@
 from parcels import (FieldSet, ParticleSet, JITParticle, AdvectionRK4_3D,
-                     ErrorCode, ParticleFile, Variable, convert_IndexedOutputToArray)
+                     ErrorCode, ParticleFile, Variable)
 from datetime import timedelta as delta
 from progressbar import ProgressBar
 import numpy as np
@@ -63,7 +63,7 @@ def run_corefootprintparticles(outfile):
     pset = ParticleSet(fieldset=fieldset, pclass=ForamParticle, lon=corelon, lat=corelat,
                        depth=coredepth, time=fieldset.U.time[-1],
                        repeatdt=delta(days=3))  # the new argument 'repeatdt' means no need to call pset.add() anymore in for-loop
-    pfile = ParticleFile(outfile, pset, type="indexed", outputdt=delta(days=1))  # `interval` argument has changed to `outputdt`
+    pfile = ParticleFile(outfile, pset, outputdt=delta(days=1))  # `interval` argument has changed to `outputdt`
 
     kernels = pset.Kernel(AdvectionRK4_3D) + Sink + SampleTemp + Age
 
@@ -114,7 +114,6 @@ def make_plot(trajfile):
     plt.show()
 
 
-outfile = "corefootprint_particles"
+outfile = "corefootprint_particles.nc"
 run_corefootprintparticles(outfile)
-convert_IndexedOutputToArray(file_in=outfile+".nc", file_out=outfile+"_array.nc")
-make_plot(outfile+"_array.nc")
+make_plot(outfile)
