@@ -23,9 +23,9 @@ def radialrotation_fieldset(xdim, ydim):
         for j in range(lat.size):
             r = np.sqrt(lon[i]**2 + lat[j]**2)
             phi = np.arctan2(lat[j], lon[i])
-            U[i, j] = -omega * r * math.sin(phi)
-            V[i, j] = omega * r * math.cos(phi)
-            R[i, j] = r
+            U[j, i] = -omega * r * math.sin(phi)
+            V[j, i] = omega * r * math.cos(phi)
+            R[j, i] = r
 
     data = {'U': U, 'V': V, 'P': R}
     dimensions = {'lon': lon, 'lat': lat}
@@ -38,9 +38,9 @@ def run_radialrotation(fieldset, outfilename):
                                  start=(0, 1000), finish=(0, 4000))
 
     # Advect the particles for 24h
-    outfile = pset.ParticleFile(name=outfilename)
+    outfile = pset.ParticleFile(name=outfilename, outputdt=delta(hours=1))
     pset.execute(AdvectionRK4, runtime=delta(days=1), dt=delta(minutes=5),
-                 interval=delta(hours=1), output_file=outfile)
+                 output_file=outfile)
 
 
 def make_plot(fieldset, outfile):

@@ -15,12 +15,12 @@ def timeoscillation_fieldset(xdim, ydim):
     lon = np.linspace(-20000, 20000, xdim, dtype=np.float32)
     lat = np.linspace(0, 40000, ydim, dtype=np.float32)
 
-    U = np.zeros((lon.size, lat.size, time.size), dtype=np.float32)
-    V = np.zeros((lon.size, lat.size, time.size), dtype=np.float32)
+    U = np.zeros((time.size, lat.size, lon.size), dtype=np.float32)
+    V = np.zeros((time.size, lat.size, lon.size), dtype=np.float32)
 
     for t in range(time.size):
-        U[:, :, t] = A * np.cos(omega*time[t])
-        V[:, :, t] = A
+        U[t, :, :] = A * np.cos(omega*time[t])
+        V[t, :, :] = A
 
     data = {'U': U, 'V': V}
     dimensions = {'lon': lon, 'lat': lat, 'time': time}
@@ -32,9 +32,9 @@ def run_timeoscillation(fieldset, outfilename):
     pset = ParticleSet.from_line(fieldset, pclass=JITParticle, size=20,
                                  start=(-10000, 0), finish=(10000, 0))
 
-    outfile = pset.ParticleFile(name=outfilename)
+    outfile = pset.ParticleFile(name=outfilename, outputdt=delta(hours=3))
     pset.execute(AdvectionRK4, runtime=delta(days=4), dt=delta(minutes=5),
-                 interval=delta(hours=3), output_file=outfile)
+                 output_file=outfile)
 
 
 def make_plot(outfile):

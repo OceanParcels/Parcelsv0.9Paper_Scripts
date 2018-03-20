@@ -28,12 +28,12 @@ def dampedoscillation_fieldset(xdim, ydim):
     lon = np.linspace(-20000, 20000, xdim, dtype=np.float32)
     lat = np.linspace(-20000, 20000, ydim, dtype=np.float32)
 
-    U = np.zeros((lon.size, lat.size, time.size), dtype=np.float32)
-    V = np.zeros((lon.size, lat.size, time.size), dtype=np.float32)
+    U = np.zeros((time.size, lat.size, lon.size), dtype=np.float32)
+    V = np.zeros((time.size, lat.size, lon.size), dtype=np.float32)
 
     for t in range(time.size):
-        U[:, :, t] = u_g*np.exp(-gamma_g*time[t]) + (u_0-u_g)*np.exp(-gamma*time[t])*np.cos(f*time[t])
-        V[:, :, t] = -(u_0-u_g)*np.exp(-gamma*time[t])*np.sin(f*time[t])
+        U[t, :, :] = u_g*np.exp(-gamma_g*time[t]) + (u_0-u_g)*np.exp(-gamma*time[t])*np.cos(f*time[t])
+        V[t, :, :] = -(u_0-u_g)*np.exp(-gamma*time[t])*np.sin(f*time[t])
 
     data = {'U': U, 'V': V}
     dimensions = {'lon': lon, 'lat': lat, 'time': time}
@@ -49,9 +49,9 @@ def true_values(t, x_0, y_0):  # Calculate the expected values for particles at 
 def run_dampedoscillation(fieldset, start_lon, start_lat, outfilename):
     pset = ParticleSet(fieldset, pclass=JITParticle, lon=start_lon, lat=start_lat)
 
-    outfile = pset.ParticleFile(name=outfilename)
+    outfile = pset.ParticleFile(name=outfilename, outputdt=delta(hours=1))
     pset.execute(AdvectionRK4, runtime=delta(days=4), dt=delta(minutes=5),
-                 interval=delta(hours=1), output_file=outfile)
+                 output_file=outfile)
 
     x, y = true_values(pset[0].time, start_lon, start_lat)
     print (x - pset[0].lon)/1000, (y - pset[0].lat)/1000
