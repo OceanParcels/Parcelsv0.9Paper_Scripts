@@ -37,7 +37,7 @@ def peninsula_fieldset(xdim, ydim):
     R = 0.32 * 50.
 
     # Create the fields
-    x, y = np.meshgrid(La, Wa, sparse=True, indexing='ij')
+    x, y = np.meshgrid(La, Wa, sparse=True, indexing='xy')
     Psi = u0*R**2*y/((x-x0)**2+y**2)-u0*y
     U = u0-u0*R**2*((x-x0)**2-y**2)/(((x-x0)**2+y**2)**2)
     V = -2*u0*R**2*((x-x0)*y)/(((x-x0)**2+y**2)**2)
@@ -72,10 +72,10 @@ def run_pensinsula(fieldset, npart, outfilename):
                                  start=(x, y[0]), finish=(x, y[1]), time=0.)
 
     # Advect the particles for 24h
-    outfile = pset.ParticleFile(name=outfilename)
+    outfile = pset.ParticleFile(name=outfilename, outputdt=delta(hours=1))
     pset.execute(AdvectionRK4 + pset.Kernel(UpdatePsi),
                  runtime=delta(hours=24), dt=delta(minutes=5),
-                 interval=delta(hours=1), output_file=outfile)
+                 output_file=outfile)
 
 
 def make_plot(fieldset, outfile):

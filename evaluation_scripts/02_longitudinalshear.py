@@ -10,8 +10,8 @@ from mpl_toolkits.basemap import Basemap
 def longitudinalshear_fieldset(xdim, ydim):
     lon = np.linspace(-180, 180, xdim, dtype=np.float32)
     lat = np.linspace(-90, 90, ydim, dtype=np.float32)
-    data = {'U': np.ones((lon.size, lat.size), dtype=np.float32),
-            'V': np.zeros((lon.size, lat.size), dtype=np.float32)}
+    data = {'U': np.ones((lat.size, lon.size), dtype=np.float32),
+            'V': np.zeros((lat.size, lon.size), dtype=np.float32)}
     dimensions = {'lon': lon, 'lat': lat}
     return FieldSet.from_data(data, dimensions, mesh='spherical')
 
@@ -21,9 +21,9 @@ def run_longitudinalshear(fieldset, npart, outfilename):
     pset = ParticleSet.from_line(fieldset, size=npart, pclass=JITParticle,
                                  start=(0, -30), finish=(0, 60))
 
-    outfile = pset.ParticleFile(name=outfilename)
+    outfile = pset.ParticleFile(name=outfilename, outputdt=delta(days=1))
     pset.execute(AdvectionRK4, runtime=delta(days=57), dt=delta(minutes=5),
-                 interval=delta(days=1), output_file=outfile)
+                 output_file=outfile)
 
 
 def make_plot(outfile):

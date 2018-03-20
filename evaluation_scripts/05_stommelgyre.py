@@ -26,9 +26,9 @@ def stommelgyre_fieldset(xdim, ydim):
     lat = np.linspace(0, b, ydim, dtype=np.float32)
 
     # Define arrays U (zonal), V (meridional), and Psi (streamfunction) all on A-grid
-    U = np.zeros((lon.size, lat.size), dtype=np.float32)
-    V = np.zeros((lon.size, lat.size), dtype=np.float32)
-    Psi = np.zeros((lon.size, lat.size), dtype=np.float32)
+    U = np.zeros((lat.size, lon.size), dtype=np.float32)
+    V = np.zeros((lat.size, lon.size), dtype=np.float32)
+    Psi = np.zeros((lat.size, lon.size), dtype=np.float32)
 
     [x, y] = np.mgrid[:lon.size, :lat.size]
     l1 = (-1 + math.sqrt(1 + 4 * math.pi**2 * eps**2)) / (2 * eps)
@@ -39,13 +39,13 @@ def stommelgyre_fieldset(xdim, ydim):
         for j in range(lat.size):
             xi = lon[i] / a
             yi = lat[j] / b
-            Psi[i, j] = A * (c1*math.exp(l1*xi) + c2*math.exp(l2*xi) + 1) * math.sin(math.pi * yi)
+            Psi[j, i] = A * (c1*math.exp(l1*xi) + c2*math.exp(l2*xi) + 1) * math.sin(math.pi * yi)
     for i in range(lon.size-2):
         for j in range(lat.size):
-            V[i+1, j] = (Psi[i+2, j] - Psi[i, j]) / (2 * a / xdim)
+            V[j, i+1] = (Psi[j, i+2] - Psi[j, i]) / (2 * a / xdim)
     for i in range(lon.size):
         for j in range(lat.size-2):
-            U[i, j+1] = -(Psi[i, j+2] - Psi[i, j]) / (2 * b / ydim)
+            U[j+1, i] = -(Psi[j+2, i] - Psi[j, i]) / (2 * b / ydim)
 
     data = {'U': U, 'V': V, 'Psi': Psi}
     dimensions = {'lon': lon, 'lat': lat}
@@ -63,9 +63,9 @@ def run_stommelgyre(fieldset, outfilename):
     pset = ParticleSet.from_line(fieldset, size=4, pclass=MyParticle, time=0.,
                                  start=(100, 5000), finish=(1000, 5000))
 
-    outfile = pset.ParticleFile(name=outfilename)
+    outfile = pset.ParticleFile(name=outfilename, outputdt=delta(hours=24))
     pset.execute(AdvectionRK4 + pset.Kernel(UpdatePsi), runtime=delta(days=50),
-                 dt=delta(minutes=5), interval=delta(hours=24), output_file=outfile)
+                 dt=delta(minutes=5), output_file=outfile)
 
 
 def make_plot(fieldset, outfile):
