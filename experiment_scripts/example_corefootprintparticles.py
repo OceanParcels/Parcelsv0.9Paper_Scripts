@@ -56,7 +56,7 @@ def run_corefootprintparticles(outfile):
     coredepth = [2440]
 
     class ForamParticle(JITParticle):
-        temp = Variable('temp', dtype=np.float32, initial=np.nan)
+        temp = Variable('temp', dtype=np.float32, initial=fieldset.temp)
         age = Variable('age', dtype=np.float32, initial=0.)
 
     pset = ParticleSet(fieldset=fieldset, pclass=ForamParticle, lon=corelon, lat=corelat,
