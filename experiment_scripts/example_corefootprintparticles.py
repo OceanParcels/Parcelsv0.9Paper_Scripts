@@ -60,7 +60,7 @@ def run_corefootprintparticles(outfile):
         age = Variable('age', dtype=np.float32, initial=0.)
 
     pset = ParticleSet(fieldset=fieldset, pclass=ForamParticle, lon=corelon, lat=corelat,
-                       depth=coredepth, time=fieldset.U.time[-1],
+                       depth=coredepth, time=fieldset.U.grid.time[-1],
                        repeatdt=delta(days=3))  # the new argument 'repeatdt' means no need to call pset.add() anymore in for-loop
     pfile = ParticleFile(outfile, pset, outputdt=delta(days=1))  # `interval` argument has changed to `outputdt`
 
