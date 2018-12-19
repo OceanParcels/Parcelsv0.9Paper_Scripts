@@ -22,25 +22,25 @@ def set_ofes_fieldset(snapshots):
     return fieldset
 
 
-def SampleTemp(particle, fieldset, time, dt):
-    particle.temp = fieldset.temp[time, particle.lon, particle.lat, particle.depth]
+def SampleTemp(particle, fieldset, time):
+    particle.temp = fieldset.temp[time, particle.depth, particle.lat, particle.lon]
 
 
-def Sink(particle, fieldset, time, dt):
+def Sink(particle, fieldset, time):
     if particle.depth > fieldset.dwellingdepth:
-        particle.depth = particle.depth + fieldset.sinkspeed * dt
+        particle.depth = particle.depth + fieldset.sinkspeed * particle.dt
     else:
         particle.depth = fieldset.dwellingdepth
 
 
-def Age(particle, fieldset, time, dt):
+def Age(particle, fieldset, time):
     if particle.depth <= fieldset.dwellingdepth:
-        particle.age = particle.age + math.fabs(dt)
+        particle.age = particle.age + math.fabs(particle.dt)
     if particle.age > fieldset.maxage:
         particle.delete()
 
 
-def DeleteParticle(particle, fieldset, time, dt):
+def DeleteParticle(particle, fieldset, time):
     particle.delete()
 
 
